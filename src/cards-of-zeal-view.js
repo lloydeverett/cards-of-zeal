@@ -188,11 +188,10 @@ export class CardsOfZealView extends LitElement {
                     </div>
                     <button class="btn">
                         ${settings()}
-                    </button
+                    </button>
                 </div>
             </div>
         `;
     }
 }
 customElements.define('cards-of-zeal-view', CardsOfZealView);
-
