@@ -152,11 +152,12 @@ button, input, select, .btn, .swap, .collapse-title, .collapse-content {
     transform: scaleX(1);
 }
 
-/* Toggle buttons */
+/* Dropdown radio control */
 
-/*
-.toggle-button:has(> label > input:checked) {
-    @apply btn-primary;
+.dropdown-radio {
+    @apply btn btn-sm btn-ghost justify-start mx-2;
+    font-family: inherit;
+    font-weight: inherit;
+    font-size: inherit;
 }
-*/
 

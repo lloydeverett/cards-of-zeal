@@ -49,6 +49,7 @@ export class CardsOfZealView extends LitElement {
     static styles = [ unsafeCSS(styles) ];
     static properties = {
         _effect: { type: String, state: true },
+        _palette: { type: String, state: true },
         _theme:  { type: String, state: true },
         _selectedSlide: { type: Number, state: true },
     };
@@ -56,6 +57,7 @@ export class CardsOfZealView extends LitElement {
     constructor() {
         super();
         this._effect = "stack";
+        this._palette = "a";
         this._theme = "default";
         this._selectedSlide = 0;
     }
@@ -77,6 +79,13 @@ export class CardsOfZealView extends LitElement {
                 const swiperElement = this.renderRoot?.querySelector('swiper-container');
                 const swiper = swiperElement?.swiper;
                 swiper.slideTo(this._selectedSlide, 0);
+            }
+        }
+        if (changedProperties.has('_theme')) {
+            if (this._theme !== 'default') {
+                document.documentElement.setAttribute('data-theme', this._theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
             }
         }
     }
@@ -169,7 +178,7 @@ export class CardsOfZealView extends LitElement {
                         { value: "stack",  label: "Cards"  },
                         { value: "slider", label: "Slider" },
                         { value: "list",   label: "List"   }
-                    ], (v) => v, (v) => html`
+                    ], (v) => v.value, (v) => html`
                         <input
                           type="radio"
                           aria-label="${v.label}"
@@ -183,27 +192,6 @@ export class CardsOfZealView extends LitElement {
                 <div class="flex-grow"></div>
             </div>
             <div class="top-right-toolbar">
-                <!--
-                ${isEmbedded ? null : html`
-                    <div class="btn p-0 outline-none relative">
-                        <select class="select select-ghost w-34 appearance-none outline-none pl-9" @change=${(e) => {
-                            const value = e.target.value;
-                            if (value !== 'default') {
-                                document.documentElement.setAttribute('data-theme', value);
-                            } else {
-                                document.documentElement.removeAttribute('data-theme');
-                            }
-                        }}>
-                              <option value="default">Default</option>
-                              <option value="light">Light</option>
-                              <option value="dark">Dark</option>
-                        </select>
-                        <div class="absolute top-2.5 left-3">
-                            ${sunMoon()}
-                        </div>
-                    </div>
-                `}
-                -->
                 <div class="join">
                     <div class="btn p-0 join-item toggle-button">
                         <label class="swap p-4">
@@ -219,9 +207,39 @@ export class CardsOfZealView extends LitElement {
                             ${volumeOff("swap-off")}
                         </label>
                     </div>
-                    <button class="btn">
-                        ${settings()}
-                    </button>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn">${settings()}</div>
+                        <ul tabindex="-1" class="dropdown-content mt-2 menu bg-base-100 rounded-box z-1 w-52 px-2 pt-2 pb-4 shadow-sm">
+                            <li class="menu-title">Theme</li>
+                            ${repeat([
+                                { value: "default", label: "Default" },
+                                { value: "light",   label: "Light"   },
+                                { value: "dark",    label: "Dark"    }
+                            ], (v) => v.value, (v) => html`
+                                <input type="radio"
+                                  name="theme-selector"
+                                  class="dropdown-radio"
+                                  aria-label="${v.label}"
+                                  value="${v.value}"
+                                  ?checked="${this._theme === v.value}"
+                                  @change=${(e) => this._theme = e.target.value} />
+                            `)}
+                            <li class="menu-title">Palette</li>
+                            ${repeat([
+                                { value: "a", label: "A" },
+                                { value: "b", label: "B" },
+                                { value: "c", label: "C" }
+                            ], (v) => v.value, (v) => html`
+                                <input type="radio"
+                                  name="palette-selector"
+                                  class="dropdown-radio"
+                                  aria-label="${v.label}"
+                                  value="${v.value}"
+                                  ?checked="${this._palette === v.value}"
+                                  @change=${(e) => this._palette = e.target.value} />
+                            `)}
+                        </ul>
+                    </div>
                 </div>
             </div>
         `;
