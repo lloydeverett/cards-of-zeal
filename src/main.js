@@ -4,12 +4,12 @@ const { Plugin, ItemView, normalizePath } = require(OBSIDIAN);
 
 const frameSrc = require('bundle-text:./frame.html');
 
-const VIEW_TYPE_OBSIDIOUS = "cards-of-zeal-view";
+const VIEW_TYPE_CARDS_OF_ZEAL = "cards-of-zeal-view";
 
 module.exports = class CardsOfZealPlugin extends Plugin {
     async onload() {
         this.registerView(
-            VIEW_TYPE_OBSIDIOUS,
+            VIEW_TYPE_CARDS_OF_ZEAL,
             (leaf) => new CardsOfZealView(leaf, this.app, this)
         );
 
@@ -36,7 +36,7 @@ module.exports = class CardsOfZealPlugin extends Plugin {
         let leaf;
         if (onRightLeaf) {
             // Check if view already exists
-            const existingLeaves = workspace.getLeavesOfType(VIEW_TYPE_OBSIDIOUS);
+            const existingLeaves = workspace.getLeavesOfType(VIEW_TYPE_CARDS_OF_ZEAL);
             for (const leaf of existingLeaves) {
                 if (leaf.getRoot().side === "right") {
                     workspace.revealLeaf(leaf);
@@ -48,14 +48,14 @@ module.exports = class CardsOfZealPlugin extends Plugin {
             leaf = workspace.getRightLeaf(false);
             if (!leaf) return;
             await leaf.setViewState({
-                type: VIEW_TYPE_OBSIDIOUS,
+                type: VIEW_TYPE_CARDS_OF_ZEAL,
                 active: true,
             });
         } else {
             leaf = this.app.workspace.splitActiveLeaf()
             if (!leaf) return;
             await leaf.setViewState({
-                type: VIEW_TYPE_OBSIDIOUS,
+                type: VIEW_TYPE_CARDS_OF_ZEAL,
                 active: false,
             });
         }
@@ -72,7 +72,7 @@ class CardsOfZealView extends ItemView {
     }
 
     getViewType() {
-        return VIEW_TYPE_OBSIDIOUS;
+        return VIEW_TYPE_CARDS_OF_ZEAL;
     }
 
     getDisplayText() {
