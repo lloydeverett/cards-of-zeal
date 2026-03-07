@@ -3,33 +3,24 @@ import { html, unsafeCSS, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
+import { getContrastColor } from './utils/color.js'; 
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
+import soundUrl_1 from 'data-url:./sounds/box_navy/1.mp3';
+import soundUrl_2 from 'data-url:./sounds/box_navy/2.mp3';
+import soundUrl_3 from 'data-url:./sounds/box_navy/3.mp3';
+import soundUrl_4 from 'data-url:./sounds/box_navy/4.mp3';
+import soundUrl_5 from 'data-url:./sounds/box_navy/5.mp3';
 
 import 'swiper/swiper-element-bundle';
 
-/**
- * Determines whether white or black text provides better contrast for a given background color.
- * Uses the YIQ luminance formula for perceived brightness.
-*/
-function getContrastColor(bgColor) {
-    bgColor = bgColor.startsWith('#') ? bgColor.slice(1) : bgColor;
-
-    const components = {
-        r: parseInt(bgColor.substring(0, 2), 16),
-        g: parseInt(bgColor.substring(2, 4), 16),
-        b: parseInt(bgColor.substring(4, 6), 16)
-    };
-
-    // Calculate perceived brightness (YIQ formula)
-    const brightness = (
-        (components.r * 299) +
-        (components.g * 587) +
-        (components.b * 114)
-    ) / 1000;
-
-    // Use a threshold (e.g., 128) to decide between black or white overlay text.
-    return brightness >= 128 ? 'black' : 'white';
-}
+const soundUrls = [soundUrl_1, soundUrl_2, soundUrl_3, soundUrl_4, soundUrl_5];
+const sounds = soundUrls.map(url => {
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    audio.volume = 0.5;
+    return audio;
+});
+let currentSoundIndex = 0;
 
 const colors = [
     "#001d29",
@@ -51,7 +42,7 @@ export class CardsOfZealView extends LitElement {
         _effect: { type: String, state: true },
         _palette: { type: String, state: true },
         _theme:  { type: String, state: true },
-        _selectedSlide: { type: Number, state: true },
+        _selectedSlideIndex: { type: Number, state: true },
     };
 
     constructor() {
@@ -59,14 +50,29 @@ export class CardsOfZealView extends LitElement {
         this._effect = "stack";
         this._palette = "a";
         this._theme = "default";
-        this._selectedSlide = 0;
+        this._selectedSlideIndex = 0;
     }
 
-    _handleSwiperSlideChange(event) {
+    _handleSwiperSelectionChange(event) {
         const [swiper] = event.detail ?? [];
         if (swiper && typeof swiper.activeIndex === 'number') {
-            this._selectedSlide = swiper.activeIndex;
+            if (this._selectedSlideIndex !== swiper.activeIndex) {
+                this._selectedSlideIndex = swiper.activeIndex;
+                this._playSound();
+            }
         }
+    }
+
+    _handleListSelectionChange(index) {
+        this._selectedSlideIndex = index;
+        this._playSound();
+    }
+
+    _playSound() {
+        const sound = sounds[currentSoundIndex];
+        currentSoundIndex = (currentSoundIndex + 1) % sounds.length;
+        sound.currentTime = 0;
+        sound.play();
     }
 
     updated(changedProperties) {
@@ -78,7 +84,7 @@ export class CardsOfZealView extends LitElement {
             } else {
                 const swiperElement = this.renderRoot?.querySelector('swiper-container');
                 const swiper = swiperElement?.swiper;
-                swiper.slideTo(this._selectedSlide, 0);
+                swiper.slideTo(this._selectedSlideIndex, 0);
             }
         }
         if (changedProperties.has('_theme')) {
@@ -101,7 +107,7 @@ export class CardsOfZealView extends LitElement {
                       keyboard="true"
                       effect='${this._effect === 'slider' ? 'slider' : 'cards'}'
                       grab-cursor="true"
-                      @swiperslidechange=${this._handleSwiperSlideChange}
+                      @swiperslidechange=${this._handleSwiperSelectionChange}
                       mousewheel='{ "enabled": true, "releaseOnEdges": false }'
                       free-mode='{ "enabled": true, "sticky": true, "minimumVelocity": 100.0 }'>
                          ${repeat(
@@ -130,11 +136,11 @@ export class CardsOfZealView extends LitElement {
                                         type="radio"
                                         name="todo-list-accordion"
                                         class="underline-effect-input"
-                                        ?checked=${index === this._selectedSlide}
+                                        ?checked=${index === this._selectedSlideIndex}
                                         @change=${(e) => {
-                                                if (e.target.checked) {
-                                                        this._selectedSlide = index;
-                                                }
+                                           if (e.target.checked) {
+                                                   this._handleListSelectionChange(index);
+                                           }
                                         }} />
                                     <div class="collapse-title h-16">
                                         <div class="absolute inset-0 flex flex-row items-center p-4">
