@@ -2,7 +2,7 @@
 import { html, unsafeCSS, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { sunMoon, play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
+import { play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
 
 import 'swiper/swiper-element-bundle';
