@@ -2,7 +2,7 @@
 import { html, unsafeCSS, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { play, circlePause, rocket, dice, volumeOn, volumeOff } from './literals/icons.js';
+import { sunMoon, play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
 
 import 'swiper/swiper-element-bundle';
@@ -41,7 +41,8 @@ const colors = [
     "#ca6702",
     "#bb3e03",
     "#ae2012",
-    "#9b2226"
+    "#9b2226",
+    "#636e72"
 ];
 
 export class CardsOfZealView extends LitElement {
@@ -70,11 +71,11 @@ export class CardsOfZealView extends LitElement {
                       mousewheel='{ "enabled": true, "releaseOnEdges": false }'
                       free-mode='{ "enabled": true, "sticky": true, "minimumVelocity": 100.0 }'>
                          ${repeat(
-                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                              (value) => value,
                              (value, index) => html`
                                  <swiper-slide
-                                   style="--bg-color: ${colors[index % colors.length]}; --fg-color: ${getContrastColor(colors[index % colors.length])};">
+                                   style="--bg-color: ${colors[index >= colors.length ? colors.length - 1 : index]}; --fg-color: ${getContrastColor(colors[index >= colors.length ? colors.length - 1 : index])};">
                                      <div class="slide-content">Slide ${value}</div>
                                  </swiper-slide>
                              `
@@ -85,26 +86,23 @@ export class CardsOfZealView extends LitElement {
                 <div class="todo-list-wrapper">
                     <ul class="bg-base-100 shadow-md todo-list w-full">
                         ${repeat(
-                            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                             (value) => value,
                             (value, index) => html`
                                 <li
                                   class="collapse rounded-none relative"
-                                  style="--bg-color: ${colors[index % colors.length]}; --fg-color: ${getContrastColor(colors[index % colors.length])};">
-                                    <input type="radio" name="todo-list-accordion" ?checked=${index === 0} />
+                                  style="--bg-color: ${colors[index >= colors.length ? colors.length - 1 : index]}; --fg-color: ${getContrastColor(colors[index >= colors.length ? colors.length - 1 : index])};">
+                                    <input type="radio" name="todo-list-accordion" class="underline-effect-input" ?checked=${index === 0} />
                                     <div class="collapse-title h-16">
                                         <div class="absolute inset-0 flex flex-row items-center p-4">
-                                            <div class="font-semibold">Slide ${value}</div>
+                                            <div class="font-semibold underline-effect-target">Slide ${value}</div>
                                             <div class="flex-grow"></div>
-                                            <button class="btn btn-square btn-ghost">
-                                                <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor"><path d="M6 3L20 12 6 21 6 3z"></path></g></svg>
-                                            </button>
-                                            <button class="btn btn-square btn-ghost">
-                                                <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></g></svg>
-                                            </button>
+                                            <button class="btn btn-square btn-ghost">${heart()}</button>
                                         </div>
                                     </div>
-                                    <div class="collapse-content text-sm">Hello world</div>
+                                    <div class="collapse-content text-sm">
+                                        <div class="h-6">Hello world</div>
+                                    </div>
                                 </li>`)}
                     </ul>
                 </div>
@@ -114,7 +112,7 @@ export class CardsOfZealView extends LitElement {
                     <button class="btn">${dice()}</button>
                 </div>
                 <div class="tooltip" data-tip="Toggle breaks">
-                    <button class="btn join-item">${circlePause()}</button>
+                    <button class="btn">${circlePause()}</button>
                 </div>
                 <div class="join">
                   <div class="btn p-0 join-item outline-none">
@@ -132,22 +130,6 @@ export class CardsOfZealView extends LitElement {
                 </div>
             </div>
             <div class="top-left-toolbar">
-                ${isEmbedded ? null : html`
-                    <div class="btn p-0 outline-none">
-                        <select class="select select-ghost w-32 appearance-none outline-none" @change=${(e) => {
-                            const value = e.target.value;
-                            if (value !== 'default') {
-                                document.documentElement.setAttribute('data-theme', value);
-                            } else {
-                                document.documentElement.removeAttribute('data-theme');
-                            }
-                        }}>
-                              <option value="default">Default</option>
-                              <option value="light">Light</option>
-                              <option value="dark">Dark</option>
-                        </select>
-                    </div>
-                `}
                 <div class="join">
                     ${repeat([
                         { value: "stack",  label: "Cards"  },
@@ -165,30 +147,48 @@ export class CardsOfZealView extends LitElement {
                           @change=${(e) => this._effect = e.target.value} />
                     `)}
                 </div>
-                ${/* contentDropdown("todo", "Todo", html`
-                    <div>Hello world</div>
-                    <div>default running timer controls</div>
-                    <div><a href="https://freefrontend.com/css-code-examples/">Effect Ex.</a></div>
-                    <div>Sounds.</div>
-                    <div>Fix card effect bug when loop=true by looking at swiper code.</div>
-                    <div>Music for different states.</div>
-                    <div>Rerender on Obsidian theme change</div>
-                    <div>Warn about the stack getting too big (encourage prioritisation)</div>
-                    <div>... or maybe even grey out elements > a certain index</div>
-                    <div>Palette selector</div>
-                    <div>Continuity between selections in different modes</div>
-                    <div>In Slider view, can a little button appear next to dice to loop infinitely?</div>
-                    <div>Accent color from view</div>
-                `) */ null}
                 <div class="flex-grow"></div>
             </div>
             <div class="top-right-toolbar">
-                <div class="btn p-0">
-                    <label class="swap swap-rotate p-4">
-                        <input type="checkbox" />
-                        ${volumeOn("swap-on")}
-                        ${volumeOff("swap-off")}
-                    </label>
+                <!--
+                ${isEmbedded ? null : html`
+                    <div class="btn p-0 outline-none relative">
+                        <select class="select select-ghost w-34 appearance-none outline-none pl-9" @change=${(e) => {
+                            const value = e.target.value;
+                            if (value !== 'default') {
+                                document.documentElement.setAttribute('data-theme', value);
+                            } else {
+                                document.documentElement.removeAttribute('data-theme');
+                            }
+                        }}>
+                              <option value="default">Default</option>
+                              <option value="light">Light</option>
+                              <option value="dark">Dark</option>
+                        </select>
+                        <div class="absolute top-2.5 left-3">
+                            ${sunMoon()}
+                        </div>
+                    </div>
+                `}
+                -->
+                <div class="join">
+                    <div class="btn p-0 join-item toggle-button">
+                        <label class="swap p-4">
+                            <input type="checkbox" />
+                            ${heart("fill-current swap-on")}
+                            ${heart("swap-off")}
+                        </label>
+                    </div>
+                    <div class="btn p-0 join-item toggle-button">
+                        <label class="swap p-4">
+                            <input type="checkbox" />
+                            ${volumeOn("swap-on")}
+                            ${volumeOff("swap-off")}
+                        </label>
+                    </div>
+                    <button class="btn">
+                        ${settings()}
+                    </button
                 </div>
             </div>
         `;

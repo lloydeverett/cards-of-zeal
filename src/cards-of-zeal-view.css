@@ -123,3 +123,40 @@ select:focus-visible, option:focus-visible {
     outline: none;
 }
 
+button, input, select, .btn, .swap, .collapse-title, .collapse-content {
+    cursor: default !important;
+}
+
+/* Underline effect */
+
+.underline-effect-input ~ * .underline-effect-target {
+    position: relative;
+    text-decoration: none;
+}
+
+.underline-effect-input ~ * .underline-effect-target::before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: top left;
+    transition: transform 0.3s ease;
+}
+
+.underline-effect-input:checked ~ * .underline-effect-target::before {
+    transform: scaleX(1);
+}
+
+/* Toggle buttons */
+
+/*
+.toggle-button:has(> label > input:checked) {
+    @apply btn-primary;
+}
+*/
+
