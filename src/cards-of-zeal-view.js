@@ -50,12 +50,37 @@ export class CardsOfZealView extends LitElement {
     static properties = {
         _effect: { type: String, state: true },
         _theme:  { type: String, state: true },
+        _selectedSlide: { type: Number, state: true },
     };
+
     constructor() {
         super();
         this._effect = "stack";
         this._theme = "default";
+        this._selectedSlide = 0;
     }
+
+    _handleSwiperSlideChange(event) {
+        const [swiper] = event.detail ?? [];
+        if (swiper && typeof swiper.activeIndex === 'number') {
+            this._selectedSlide = swiper.activeIndex;
+        }
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has('_effect')) {
+            if (this._effect === 'list') {
+                const selectedInput = this.renderRoot?.querySelector('.todo-list .underline-effect-input:checked');
+                const selectedItem = selectedInput?.closest('li');
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                const swiperElement = this.renderRoot?.querySelector('swiper-container');
+                const swiper = swiperElement?.swiper;
+                swiper.slideTo(this._selectedSlide, 0);
+            }
+        }
+    }
+
     render() {
         const swiperElementKey = JSON.stringify([this._effect]);
         const isEmbedded = document.documentElement.classList.contains("embedded");
@@ -67,6 +92,7 @@ export class CardsOfZealView extends LitElement {
                       keyboard="true"
                       effect='${this._effect === 'slider' ? 'slider' : 'cards'}'
                       grab-cursor="true"
+                      @swiperslidechange=${this._handleSwiperSlideChange}
                       cards-effect='${this._effect === 'line' ? '{ "slideShadows": true, "perSlideOffset": 130, "perSlideRotate":  0, "rotate": false }' : ''}'
                       mousewheel='{ "enabled": true, "releaseOnEdges": false }'
                       free-mode='{ "enabled": true, "sticky": true, "minimumVelocity": 100.0 }'>
@@ -92,7 +118,16 @@ export class CardsOfZealView extends LitElement {
                                 <li
                                   class="collapse rounded-none relative"
                                   style="--bg-color: ${colors[index >= colors.length ? colors.length - 1 : index]}; --fg-color: ${getContrastColor(colors[index >= colors.length ? colors.length - 1 : index])};">
-                                    <input type="radio" name="todo-list-accordion" class="underline-effect-input" ?checked=${index === 0} />
+                                    <input
+                                        type="radio"
+                                        name="todo-list-accordion"
+                                        class="underline-effect-input"
+                                        ?checked=${index === this._selectedSlide}
+                                        @change=${(e) => {
+                                                if (e.target.checked) {
+                                                        this._selectedSlide = index;
+                                                }
+                                        }} />
                                     <div class="collapse-title h-16">
                                         <div class="absolute inset-0 flex flex-row items-center p-4">
                                             <div class="font-semibold underline-effect-target">Slide ${value}</div>
