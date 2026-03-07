@@ -8,16 +8,8 @@
 }
 
 :host {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
+    @apply flex flex-col justify-center h-full items-center select-none;
     background: none;
-    align-items: center;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     --card-width: calc(clamp(min(200px, calc(100vw - 16px)), 60vmin, 420px));
     --card-height: calc((4/3) * var(--card-width));
     --max-card-width: 420px;
@@ -25,38 +17,29 @@
 }
 
 :host, [data-theme] {
+    @apply bg-transparent;
     font-family: inherit;
     color-scheme: inherit;
     --color-primary: inherit;
     --color-primary-content: inherit;
-    background-color: transparent;
 }
 
 swiper-container, .todo-list-wrapper {
-    position: absolute;
-    z-index: 0;
+    @apply absolute z-0;
 }
 
 .todo-list-wrapper {
-    padding-top: 4.5rem;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
+    @apply pt-18 inset-0 overflow-y-auto;
 }
 
 .todo-list .collapse {
+    @apply cursor-pointer;
     background-color: var(--bg-color);
     color: var(--fg-color, white);
-    cursor: pointer;
 }
 
 swiper-container[effect="slider"] {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    @apply inset-0;
 }
 
 swiper-container[effect="cards"] {
@@ -65,13 +48,7 @@ swiper-container[effect="cards"] {
 }
 
 swiper-slide {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #fff;
-    user-select: none;
+    @apply flex items-center justify-center text-xl font-bold text-white select-none;
     background-color: var(--bg-color);
     color: var(--fg-color, white);
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
@@ -82,33 +59,20 @@ swiper-container[effect="cards"] swiper-slide {
 }
 
 .top-left-toolbar, .top-right-toolbar {
-    position: absolute;
-    top: 16px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    z-index: 1;
-    @apply gap-4;
+    @apply absolute top-4 flex flex-row items-center z-[1] gap-4;
 }
 
 .top-left-toolbar {
-    left: 16px;
+    @apply left-4;
 }
 
 .top-right-toolbar {
-    right: 16px;
+    @apply right-4;
 }
 
 .bottom-toolbar {
-    position: absolute;
-    padding-left: 16px;
-    padding-right: 16px;
+    @apply absolute px-4 flex flex-row justify-center z-[1] gap-4;
     bottom: calc(max(16px, 50vh - (var(--card-height) / 2) - 64px));
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    z-index: 1;
-    @apply gap-4;
 }
 
 :host:has(swiper-container:not([effect="cards"])) .bottom-toolbar, :host:has(.todo-list-wrapper) .bottom-toolbar {
@@ -116,11 +80,11 @@ swiper-container[effect="cards"] swiper-slide {
 }
 
 select {
-    text-align: left;
+    @apply text-left;
 }
 
 select:focus-visible, option:focus-visible {
-    outline: none;
+    @apply outline-none;
 }
 
 button, input, select, .btn, .swap, .collapse-title, .collapse-content {
