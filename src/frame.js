@@ -5,7 +5,7 @@ import './cards-of-zeal-view.js';
 
 document.documentElement.classList.toggle('embedded', window.parent !== window);
 
-if (!isEmbedded()) {
+if (isEmbedded()) {
     const computedParentStyles = getComputedStyle(window.parent.document.body);
     document.body.style.fontFamily = computedParentStyles.fontFamily;
     document.body.style.fontSize = computedParentStyles.fontSize;
