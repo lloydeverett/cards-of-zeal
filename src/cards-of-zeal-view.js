@@ -4,23 +4,13 @@ import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
 import { getContrastColor } from './utils/color.js'; 
+import { Sound } from './utils/sound.js';
+import soundUrl from 'data-url:./sounds/click.wav';
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
-import soundUrl_1 from 'data-url:./sounds/box_navy/1.mp3';
-import soundUrl_2 from 'data-url:./sounds/box_navy/2.mp3';
-import soundUrl_3 from 'data-url:./sounds/box_navy/3.mp3';
-import soundUrl_4 from 'data-url:./sounds/box_navy/4.mp3';
-import soundUrl_5 from 'data-url:./sounds/box_navy/5.mp3';
 
 import 'swiper/swiper-element-bundle';
 
-const soundUrls = [soundUrl_1, soundUrl_2, soundUrl_3, soundUrl_4, soundUrl_5];
-const sounds = soundUrls.map(url => {
-    const audio = new Audio(url);
-    audio.preload = 'auto';
-    audio.volume = 0.5;
-    return audio;
-});
-let currentSoundIndex = 0;
+const cardSound = new Sound(soundUrl, 0.5);
 
 const colors = [
     "#001d29",
@@ -42,7 +32,7 @@ export class CardsOfZealView extends LitElement {
         _effect: { type: String, state: true },
         _palette: { type: String, state: true },
         _theme:  { type: String, state: true },
-        _selectedSlideIndex: { type: Number, state: true },
+        _soundEnabled: { type: Boolean, state: true },
     };
 
     constructor() {
@@ -51,28 +41,24 @@ export class CardsOfZealView extends LitElement {
         this._palette = "a";
         this._theme = "default";
         this._selectedSlideIndex = 0;
+        this._soundEnabled = false;
     }
 
     _handleSwiperSelectionChange(event) {
         const [swiper] = event.detail ?? [];
-        if (swiper && typeof swiper.activeIndex === 'number') {
-            if (this._selectedSlideIndex !== swiper.activeIndex) {
-                this._selectedSlideIndex = swiper.activeIndex;
-                this._playSound();
+        if (swiper && typeof swiper.activeIndex === 'number' && this._selectedSlideIndex !== swiper.activeIndex) {
+            this._selectedSlideIndex = swiper.activeIndex;
+            if (this._soundEnabled) {
+                cardSound.play();
             }
         }
     }
 
     _handleListSelectionChange(index) {
         this._selectedSlideIndex = index;
-        this._playSound();
-    }
-
-    _playSound() {
-        const sound = sounds[currentSoundIndex];
-        currentSoundIndex = (currentSoundIndex + 1) % sounds.length;
-        sound.currentTime = 0;
-        sound.play();
+        if (this._soundEnabled) {
+            cardSound.play();
+        }
     }
 
     updated(changedProperties) {
@@ -98,7 +84,6 @@ export class CardsOfZealView extends LitElement {
 
     render() {
         const swiperElementKey = JSON.stringify([this._effect]);
-        const isEmbedded = document.documentElement.classList.contains("embedded");
         return html`
             ${this._effect !== "list" ? keyed(
                 swiperElementKey,
@@ -172,6 +157,7 @@ export class CardsOfZealView extends LitElement {
                           <option value="30">30 minutes</option>
                           <option value="45">45 minutes</option>
                           <option value="60">1 hour</option>
+                          <option value="indefinite">Indefinite</option>
                       </select>
                   </div>
                   <button class="btn join-item">${play()}</button>
@@ -208,7 +194,10 @@ export class CardsOfZealView extends LitElement {
                     </div>
                     <div class="btn p-0 join-item toggle-button">
                         <label class="swap p-4">
-                            <input type="checkbox" />
+                            <input
+                              type="checkbox"
+                              ?checked=${this._soundEnabled}
+                              @change=${(e) => this._soundEnabled = e.target.checked} />
                             ${volumeOn("swap-on")}
                             ${volumeOff("swap-off")}
                         </label>
