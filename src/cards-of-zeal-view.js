@@ -93,7 +93,6 @@ export class CardsOfZealView extends LitElement {
                       effect='${this._effect === 'slider' ? 'slider' : 'cards'}'
                       grab-cursor="true"
                       @swiperslidechange=${this._handleSwiperSlideChange}
-                      cards-effect='${this._effect === 'line' ? '{ "slideShadows": true, "perSlideOffset": 130, "perSlideRotate":  0, "rotate": false }' : ''}'
                       mousewheel='{ "enabled": true, "releaseOnEdges": false }'
                       free-mode='{ "enabled": true, "sticky": true, "minimumVelocity": 100.0 }'>
                          ${repeat(
@@ -168,7 +167,6 @@ export class CardsOfZealView extends LitElement {
                 <div class="join">
                     ${repeat([
                         { value: "stack",  label: "Cards"  },
-                     // { value: "line",   label: "Line"   },
                         { value: "slider", label: "Slider" },
                         { value: "list",   label: "List"   }
                     ], (v) => v, (v) => html`
