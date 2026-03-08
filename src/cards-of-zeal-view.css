@@ -75,7 +75,7 @@ swiper-container[effect="cards"] swiper-slide {
 }
 
 .bottom-toolbar {
-    @apply absolute px-4 flex flex-row justify-center z-[1] gap-4;
+    @apply absolute z-[1];
     bottom: calc(max(16px, 50vh - (var(--card-height) / 2) - 64px));
 }
 
@@ -97,7 +97,7 @@ button, input, select, .btn, .swap, .collapse-title, .collapse-content {
 
 .task-list-task-title {
     min-width: 0;
-    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+    @apply truncate;
 }
 
 /* Underline effect */

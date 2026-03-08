@@ -2,13 +2,14 @@
 import { html, unsafeCSS, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
+import { heart, volumeOn, volumeOff, settings } from './literals/icons.js';
 import { getContrastColor } from './utils/color.js'; 
-import { IS_EMBEDDED } from './environment.js';
 import { Sound } from './utils/sound.js';
+import { IS_EMBEDDED } from './environment.js';
 import soundUrl from 'data-url:./sounds/click.wav';
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
 
+import './components/card-controls-toolbar.js'
 import 'swiper/swiper-element-bundle';
 
 const localStorageKey = "cards-of-zeal-settings";
@@ -282,27 +283,10 @@ export class CardsOfZealView extends LitElement {
                 </div>
             `}
             <div class="bottom-toolbar">
-                <div class="tooltip" data-tip="Random draw">
-                    <button class="btn">${dice()}</button>
-                </div>
-                <div class="tooltip" data-tip="Toggle breaks">
-                    <button class="btn">${circlePause()}</button>
-                </div>
-                <div class="join">
-                  <div class="btn p-0 join-item outline-none">
-                      <select class="select select-ghost w-40 appearance-none outline-none">
-                          <option value="5">5 minutes</option>
-                          <option value="10">10 minutes</option>
-                          <option value="15">15 minutes</option>
-                          <option value="30">30 minutes</option>
-                          <option value="45">45 minutes</option>
-                          <option value="60">1 hour</option>
-                          <option value="indefinite">Indefinite</option>
-                      </select>
-                  </div>
-                  <button class="btn join-item">${play()}</button>
-                  <button class="btn join-item">${rocket()}</button>
-                </div>
+                <coz-card-controls-toolbar
+                    .timerEndEpoch=${100}
+                    .getSelectedTaskText=${(() => this._tasks.length ? this._tasks[this._selectedSlideIndex] : null)}>
+                </coz-card-controls-toolbar>
             </div>
             <div class="top-left-toolbar">
                 <div class="join">

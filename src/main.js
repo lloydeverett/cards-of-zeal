@@ -122,22 +122,29 @@ class CardsOfZealView extends ItemView {
 
     async renderFile(file) {
         const content = await this.app.vault.read(file);
+
+        const horizontalRuleRegex = /^ {0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})$/m;
+        const horizontalRuleMatch = content.match(horizontalRuleRegex);
+        const contentToParse = horizontalRuleMatch
+            ? content.slice(0, horizontalRuleMatch.index)
+            : content;
+
         const taskRegex = /^\s*[\*\-\+]\s*\[([ xX])] (.*)$/gm;
         const idRegex = /\s+#([0-9a-fA-F]+)\s*$/;
         let match;
         const tasks = [];
-        while ((match = taskRegex.exec(content)) !== null) {
-            let [ , status, content] = match;
+        while ((match = taskRegex.exec(contentToParse)) !== null) {
+            let [ , status, taskText] = match;
                 let id = null;
-                const idMatch = content.match(idRegex);
+                const idMatch = taskText.match(idRegex);
                 if (idMatch) {
                     id = idMatch[1]; // Capture the digits
-                    content = content.replace(idRegex, '').trim(); // Remove ID from text
+                    taskText = taskText.replace(idRegex, '').trim(); // Remove ID from text
                 }
                 tasks.push({
                   id: id ? parseInt(id, 10) : null,
                   completed: status === 'x' || status === 'X',
-                  text: content.trim()
+                  text: taskText.trim()
                 });
         }
         if (this.iframe && this.iframe.contentWindow) {
