@@ -4,7 +4,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { play, circlePause, heart, rocket, dice, volumeOn, volumeOff, settings } from './literals/icons.js';
 import { getContrastColor } from './utils/color.js'; 
-import { isEmbedded } from './environment.js';
+import { IS_EMBEDDED } from './environment.js';
 import { Sound } from './utils/sound.js';
 import soundUrl from 'data-url:./sounds/click.wav';
 import * as styles from 'bundle-text:./cards-of-zeal-view.css';
@@ -67,7 +67,7 @@ export class CardsOfZealView extends LitElement {
         },
         _soundEnabled: {
             // browsers require page interaction to allow sound playback, so avoid loading "true" from local storage if we're not in an embedded context
-            persist: isEmbedded(), 
+            persist: IS_EMBEDDED, 
             values: [
                 { value: true },
                 { value: false }
@@ -84,7 +84,7 @@ export class CardsOfZealView extends LitElement {
         this._theme = "default";
         this._selectedSlideIndex = 0;
         this._soundEnabled = false;
-        this._tasks = !isEmbedded() ? [...Array(15).keys()].map(i => i + 1).map(n => `Slide ${n}`) : [];
+        this._tasks = !IS_EMBEDDED ? [...Array(15).keys()].map(i => i + 1).map(n => `Slide ${n}`) : [];
         this._forceSelectionIndex = null;
 
         // load persisted properties if they exist and are valid
@@ -102,7 +102,7 @@ export class CardsOfZealView extends LitElement {
 
         // listen for updates from parent page if we're in an embedded setting - again, attach event listeners to the window
         // like we just don't care
-        if (isEmbedded()) {
+        if (IS_EMBEDDED) {
             this._selectedSlideByFilename = new Map(); // try to keep track of current selection across different files
             window.addEventListener('message', (event) => {
                 if (this._filepath) {

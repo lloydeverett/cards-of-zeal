@@ -1,11 +1,11 @@
 
-import { isEmbedded } from './environment.js';
+import { IS_EMBEDDED } from './environment.js';
 
 import './cards-of-zeal-view.js';
 
 document.documentElement.classList.toggle('embedded', window.parent !== window);
 
-if (isEmbedded()) {
+if (IS_EMBEDDED) {
     const computedParentStyles = getComputedStyle(window.parent.document.body);
     document.body.style.fontFamily = computedParentStyles.fontFamily;
     document.body.style.fontSize = computedParentStyles.fontSize;

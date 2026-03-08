@@ -1,4 +1,2 @@
 
-export function isEmbedded() {
-    return window.parent !== window;
-}
+export const IS_EMBEDDED = window.parent !== window;
