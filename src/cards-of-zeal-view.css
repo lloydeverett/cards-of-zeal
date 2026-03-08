@@ -54,6 +54,10 @@ swiper-slide {
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
+.slide-content {
+    @apply text-center px-8;
+}
+
 swiper-container[effect="cards"] swiper-slide {
     border-radius: 18px;
 }
@@ -91,9 +95,15 @@ button, input, select, .btn, .swap, .collapse-title, .collapse-content {
     cursor: default !important;
 }
 
+.task-list-task-title {
+    min-width: 0;
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+}
+
 /* Underline effect */
 
 .underline-effect-input ~ * .underline-effect-target {
+    min-width: 0;
     position: relative;
     text-decoration: none;
 }

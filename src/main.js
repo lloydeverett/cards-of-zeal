@@ -15,7 +15,7 @@ module.exports = class CardsOfZealPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-cards-of-zeal-split',
-            name: 'Open Cards of Zeal view for the current file',
+            name: 'Open Cards of Zeal in a split view',
             callback: () => {
                 this.activateView(false);
             },
@@ -23,7 +23,7 @@ module.exports = class CardsOfZealPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-cards-of-zeal-right',
-            name: 'Show Cards of Zeal',
+            name: 'Show Cards of Zeal sidebar view',
             callback: () => {
                 this.activateView(true);
             },
@@ -69,6 +69,7 @@ class CardsOfZealView extends ItemView {
         super(leaf);
         this.app = app;
         this.plugin = plugin;
+        this.iframe = null;
     }
 
     getViewType() {
@@ -86,6 +87,16 @@ class CardsOfZealView extends ItemView {
     async onOpen() {
         this.containerEl.empty();
         this.containerEl.addClass("cards-of-zeal-container");
+        if (this.containerEl.children.length === 0) {
+            const iframe = document.createElement('iframe')
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.margin = 0;
+            iframe.style.padding = 0;
+            iframe.srcdoc = frameSrc;
+            this.containerEl.appendChild(iframe);
+            this.iframe = iframe;
+        }
 
         const activeFile = this.app.workspace.getActiveFile();
         if (activeFile) {
@@ -110,19 +121,27 @@ class CardsOfZealView extends ItemView {
     }
 
     async renderFile(file) {
-        // const content = await this.app.vault.read(file);
-
-        const url = new URL(this.app.vault.adapter.getResourcePath(normalizePath(this.plugin.manifest.dir)));
-        url.search = '';
-
-        if (this.containerEl.children.length === 0) {
-            const iframe = document.createElement('iframe')
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.margin = 0;
-            iframe.style.padding = 0;
-            iframe.srcdoc = frameSrc;
-            this.containerEl.appendChild(iframe);
+        const content = await this.app.vault.read(file);
+        const taskRegex = /^\s*[\*\-\+]\s*\[([ xX])] (.*)$/gm;
+        const idRegex = /\s+#([0-9a-fA-F]+)\s*$/;
+        let match;
+        const tasks = [];
+        while ((match = taskRegex.exec(content)) !== null) {
+            let [ , status, content] = match;
+                let id = null;
+                const idMatch = content.match(idRegex);
+                if (idMatch) {
+                    id = idMatch[1]; // Capture the digits
+                    content = content.replace(idRegex, '').trim(); // Remove ID from text
+                }
+                tasks.push({
+                  id: id ? parseInt(id, 10) : null,
+                  completed: status === 'x' || status === 'X',
+                  text: content.trim()
+                });
+        }
+        if (this.iframe && this.iframe.contentWindow) {
+            this.iframe.contentWindow.postMessage({ type: 'update-tasks', tasks, filepath: file.path }, '*');
         }
     }
 

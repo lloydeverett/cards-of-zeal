@@ -36,6 +36,8 @@ export class CardsOfZealView extends LitElement {
         _palette: { type: String, state: true },
         _theme:  { type: String, state: true },
         _soundEnabled: { type: Boolean, state: true },
+        _tasks: { type: Object, state: true },
+        _forceSelectionIndex: { type: Number, state: true }
     };
 
     static PROPERTIES_META = {
@@ -82,6 +84,8 @@ export class CardsOfZealView extends LitElement {
         this._theme = "default";
         this._selectedSlideIndex = 0;
         this._soundEnabled = false;
+        this._tasks = !isEmbedded() ? [...Array(15).keys()].map(i => i + 1).map(n => `Slide ${n}`) : [];
+        this._forceSelectionIndex = null;
 
         // load persisted properties if they exist and are valid
         this._tryLoadPersistedProperties(localStorage.getItem(localStorageKey));
@@ -95,6 +99,24 @@ export class CardsOfZealView extends LitElement {
                 this._tryLoadPersistedProperties(event.newValue);
             }
         });
+
+        // listen for updates from parent page if we're in an embedded setting - again, attach event listeners to the window
+        // like we just don't care
+        if (isEmbedded()) {
+            this._selectedSlideByFilename = new Map(); // try to keep track of current selection across different files
+            window.addEventListener('message', (event) => {
+                if (this._filepath) {
+                    this._selectedSlideByFilename.set(this._filepath, this._selectedSlideIndex);
+                }
+                if (event.data.filepath && event.data.filepath !== this._filepath) {
+                    this._filepath = event.data.filepath;
+                    this._forceSelectionIndex = this._selectedSlideByFilename.get(event.data.filepath) ?? 0;
+                }
+                if (event.data.type === "update-tasks") {
+                    this._tasks = event.data.tasks.filter(t => !t.completed).map(t => t.text);
+                }
+            });
+        }
     }
 
     _tryLoadPersistedProperties(value) {
@@ -124,7 +146,7 @@ export class CardsOfZealView extends LitElement {
 
     _handleSwiperSelectionChange(event) {
         const [swiper] = event.detail ?? [];
-        if (swiper && typeof swiper.activeIndex === 'number' && this._selectedSlideIndex !== swiper.activeIndex) {
+        if (swiper && typeof swiper.activeIndex === 'number' && this._selectedSlideIndex !== swiper.activeIndex && !this._forceSelectionIndex) {
             this._selectedSlideIndex = swiper.activeIndex;
             if (this._soundEnabled) {
                 cardSound.play();
@@ -133,23 +155,56 @@ export class CardsOfZealView extends LitElement {
     }
 
     _handleListSelectionChange(index) {
-        this._selectedSlideIndex = index;
-        if (this._soundEnabled) {
-            cardSound.play();
+        if (!this._forceSelectionIndex) {
+            this._selectedSlideIndex = index;
+            if (this._soundEnabled) {
+                cardSound.play();
+            }
+        }
+    }
+
+    // solely expected to be called during update to ensure this._forceSelectionIndex is applied
+    _applyForcedSelection() {
+        if (this._forceSelectionIndex !== null &&
+              (typeof this._forceSelectionIndex !== 'number' || this._forceSelectionIndex >= this._tasks.length)) {
+            // bad selection
+            console.warn('Cannot force apply selection index', this._forceSelectionIndex, 'as it is outside the expected range');
+            this._forceSelectionIndex = null;
+            return;
+        }
+
+        const apply = (index) => {
+            this._selectedSlideIndex = index;
+            if (this._effect === 'list') {
+                const selectedInput = this.renderRoot?.querySelector('.todo-list .underline-effect-input:checked');
+                if (!selectedInput) { 
+                    return false;
+                }
+                const selectedItem = selectedInput?.closest('li');
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return true;
+            } else {
+                const swiperElement = this.renderRoot?.querySelector('swiper-container');
+                const swiper = swiperElement?.swiper;
+                swiper.slideTo(index, 0);
+                return swiper.activeIndex === index;
+            }
+        }
+
+        if (apply(this._forceSelectionIndex !== null ? this._forceSelectionIndex : this._selectedSlideIndex)) {
+            // all done! we can stop now
+            this._forceSelectionIndex = null;
+        } else {
+            // keep looping
+            window.setTimeout(() => {
+                this.requestUpdate();
+            }, 0);
         }
     }
 
     updated(changedProperties) {
-        if (changedProperties.has('_effect')) {
-            if (this._effect === 'list') {
-                const selectedInput = this.renderRoot?.querySelector('.todo-list .underline-effect-input:checked');
-                const selectedItem = selectedInput?.closest('li');
-                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
-                const swiperElement = this.renderRoot?.querySelector('swiper-container');
-                const swiper = swiperElement?.swiper;
-                swiper.slideTo(this._selectedSlideIndex, 0);
-            }
+        if (changedProperties.has('_effect') || this._forceSelectionIndex !== null) {
+            this._applyForcedSelection();
         }
         if (changedProperties.has('_theme')) {
             if (this._theme !== 'default') {
@@ -182,13 +237,11 @@ export class CardsOfZealView extends LitElement {
                       @swiperslidechange=${this._handleSwiperSelectionChange}
                       mousewheel='{ "enabled": true, "releaseOnEdges": false }'
                       free-mode='{ "enabled": true, "sticky": true, "minimumVelocity": 100.0 }'>
-                         ${repeat(
-                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-                             (value) => value,
+                         ${this._tasks.map(
                              (value, index) => html`
                                  <swiper-slide
                                    style="--bg-color: ${colors[index >= colors.length ? colors.length - 1 : index]}; --fg-color: ${getContrastColor(colors[index >= colors.length ? colors.length - 1 : index])};">
-                                     <div class="slide-content">Slide ${value}</div>
+                                     <div class="slide-content">${value}</div>
                                  </swiper-slide>
                              `
                          )}
@@ -197,9 +250,7 @@ export class CardsOfZealView extends LitElement {
             ) : html`
                 <div class="todo-list-wrapper">
                     <ul class="bg-base-100 shadow-md todo-list w-full">
-                        ${repeat(
-                            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-                            (value) => value,
+                        ${this._tasks.map(
                             (value, index) => html`
                                 <li
                                   class="collapse rounded-none relative"
@@ -211,12 +262,14 @@ export class CardsOfZealView extends LitElement {
                                         .checked=${index === this._selectedSlideIndex}
                                         @change=${(e) => {
                                            if (e.target.checked) {
-                                                   this._handleListSelectionChange(index);
+                                                this._handleListSelectionChange(index);
                                            }
                                         }} />
                                     <div class="collapse-title h-16">
                                         <div class="absolute inset-0 flex flex-row items-center p-4">
-                                            <div class="font-semibold underline-effect-target">Slide ${value}</div>
+                                            <div class="font-semibold underline-effect-target">
+                                                <div class="task-list-task-title">${value}</div>
+                                            </div>
                                             <div class="flex-grow"></div>
                                             <button class="btn btn-square btn-ghost">${heart()}</button>
                                         </div>
