@@ -12,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -24,4 +26,26 @@ jobs:
 
     - name: Build with Parcel
       run: npm run build
+
+    - name: Check for version tag
+      id: check_tag
+      run: |
+        # Finds tags pointing at the current commit that start with 'v'
+        TAG=$(git tag --points-at HEAD "v*")
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        if [ -z "$TAG" ]; then
+          echo "No 'v' tag found on this commit."
+        else
+          echo "Found tag: $TAG"
+        fi
+
+    - name: Create GitHub Release
+      if: steps.check_tag.outputs.tag != ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create ${{ steps.check_tag.outputs.tag }} \
+            ./dist/* \
+            --title="Release ${{ steps.check_tag.outputs.tag }}" \
+            --generate-notes
 
