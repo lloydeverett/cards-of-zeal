@@ -1,4 +1,4 @@
-name: Build with Parcel
+name: Build and release with Parcel
 
 on:
   push:
