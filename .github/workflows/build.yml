@@ -41,6 +41,8 @@ jobs:
 
     - name: Create GitHub Release
       if: steps.check_tag.outputs.tag != ''
+      permissions:
+        contents: write
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
