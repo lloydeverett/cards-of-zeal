@@ -68,6 +68,7 @@ export class CardControlsToolbar extends LitElement {
                                 { value: `${5 * 60}`, label: '5 minutes' },
                                 { value: `${10 * 60}`, label: '10 minutes' },
                                 { value: `${15 * 60}`, label: '15 minutes' },
+                                { value: `${20 * 60}`, label: '20 minutes' },
                                 { value: `${30 * 60}`, label: '30 minutes' },
                                 { value: `${45 * 60}`, label: '45 minutes' },
                                 { value: `${60 * 60}`, label: '1 hour' },
