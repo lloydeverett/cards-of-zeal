@@ -31,9 +31,6 @@ export class CardControlsToolbar extends LitElement {
         return html`
             <div class="flex flex-row items-center gap-4" style="max-width: calc(100vw - 2rem);">
                 ${this._runningTaskText !== null ? html`
-                    <div class="tooltip" data-tip="Lock selected task">
-                        <button class="btn ${activeBtnVariant} join-item">${lock()}</button>
-                    </div>
                     <div class="join flex flex-row flex-shrink min-w-20">
                       <button class="btn ${activeBtnVariant} join-item outline-none justify-start flex-shrink min-w-0 w-80">
                         <div class="truncate">${this._runningTaskText}</div>
@@ -52,17 +49,14 @@ export class CardControlsToolbar extends LitElement {
                       <button class="btn ${activeBtnVariant} join-item" @click=${this._handleStopClicked}>${stop()}</button>
                     </div>
                 ` : html`
-                    <div class="tooltip" data-tip="Random draw">
-                        <button class="btn">${dice()}</button>
-                    </div>
                     <div class="tooltip" data-tip="Toggle breaks">
                         <button class="btn">${circlePause()}</button>
                     </div>
                     <div class="join">
                       <div class="btn p-0 join-item outline-none">
                           <select
-                            class="select select-ghost w-40 appearance-none outline-none" 
-                            @change=${(e) => this._timerDurationSeconds = e.target.value} />
+                            class="select select-ghost w-40 appearance-none outline-none"
+                            @change=${(e) => this._timerDurationSeconds = e.target.value}>
                               ${repeat([
                                 { value: `${1 * 60}`, label: '1 minute' },
                                 { value: `${5 * 60}`, label: '5 minutes' },

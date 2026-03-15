@@ -63,7 +63,7 @@ swiper-container[effect="cards"] swiper-slide {
 }
 
 .top-left-toolbar, .top-right-toolbar {
-    @apply absolute top-4 flex flex-row items-center z-[1] gap-4;
+    @apply absolute top-4 flex flex-row items-center z-[1] gap-3;
 }
 
 .top-left-toolbar {

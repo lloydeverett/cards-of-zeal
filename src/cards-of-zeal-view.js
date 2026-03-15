@@ -2,8 +2,8 @@
 import { html, unsafeCSS, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { heart, volumeOn, volumeOff, settings } from './literals/icons.js';
-import { getContrastColor } from './utils/color.js'; 
+import { volumeOn, volumeOff, settings } from './literals/icons.js';
+import { getContrastColor } from './utils/color.js';
 import { Sound } from './utils/sound.js';
 import { IS_EMBEDDED } from './environment.js';
 import soundUrl from 'data-url:./sounds/click.wav';
@@ -178,7 +178,7 @@ export class CardsOfZealView extends LitElement {
             this._selectedSlideIndex = index;
             if (this._effect === 'list') {
                 const selectedInput = this.renderRoot?.querySelector('.todo-list .underline-effect-input:checked');
-                if (!selectedInput) { 
+                if (!selectedInput) {
                     return false;
                 }
                 const selectedItem = selectedInput?.closest('li');
@@ -272,11 +272,10 @@ export class CardsOfZealView extends LitElement {
                                                 <div class="task-list-task-title">${value}</div>
                                             </div>
                                             <div class="flex-grow"></div>
-                                            <button class="btn btn-square btn-ghost">${heart()}</button>
                                         </div>
                                     </div>
                                     <div class="collapse-content text-sm">
-                                        <div class="h-6">Hello world</div>
+                                        <div class="h-6 italic">Lorem ipsum dolor sit amet.</div>
                                     </div>
                                 </li>`)}
                     </ul>
@@ -304,49 +303,40 @@ export class CardsOfZealView extends LitElement {
                 <div class="flex-grow"></div>
             </div>
             <div class="top-right-toolbar">
-                <div class="join">
-                    <div class="btn p-0 join-item toggle-button">
-                        <label class="swap p-4">
-                            <input type="checkbox" />
-                            ${heart("fill-current swap-on")}
-                            ${heart("swap-off")}
-                        </label>
-                    </div>
-                    <div class="btn p-0 join-item toggle-button">
-                        <label class="swap p-4">
-                            <input
-                              type="checkbox"
-                              .checked=${this._soundEnabled}
-                              @change=${(e) => this._soundEnabled = e.target.checked} />
-                            ${volumeOn("swap-on")}
-                            ${volumeOff("swap-off")}
-                        </label>
-                    </div>
-                    <div class="dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="btn">${settings()}</div>
-                        <ul tabindex="-1" class="dropdown-content mt-2 menu bg-base-100 rounded-box z-1 w-52 px-2 pt-2 pb-4 shadow-sm">
-                            <li class="menu-title">Theme</li>
-                            ${repeat(CardsOfZealView.PROPERTIES_META._theme.values, (v) => v.value, (v) => html`
-                                <input type="radio"
-                                  name="theme-selector"
-                                  class="dropdown-radio"
-                                  aria-label="${v.label}"
-                                  value="${v.value}"
-                                  .checked="${this._theme === v.value}"
-                                  @change=${(e) => this._theme = e.target.value} />
-                            `)}
-                            <li class="menu-title">Palette</li>
-                            ${repeat(CardsOfZealView.PROPERTIES_META._palette.values, (v) => v.value, (v) => html`
-                                <input type="radio"
-                                  name="palette-selector"
-                                  class="dropdown-radio"
-                                  aria-label="${v.label}"
-                                  value="${v.value}"
-                                  .checked="${this._palette === v.value}"
-                                  @change=${(e) => this._palette = e.target.value} />
-                            `)}
-                        </ul>
-                    </div>
+                <div class="btn p-0 toggle-button">
+                    <label class="swap p-4">
+                        <input
+                          type="checkbox"
+                          .checked=${this._soundEnabled}
+                          @change=${(e) => this._soundEnabled = e.target.checked} />
+                        ${volumeOn("swap-on")}
+                        ${volumeOff("swap-off")}
+                    </label>
+                </div>
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn">${settings()}</div>
+                    <ul tabindex="-1" class="dropdown-content mt-2 menu bg-base-100 rounded-box z-1 w-52 px-2 pt-2 pb-4 shadow-sm">
+                        <li class="menu-title">Theme</li>
+                        ${repeat(CardsOfZealView.PROPERTIES_META._theme.values, (v) => v.value, (v) => html`
+                            <input type="radio"
+                              name="theme-selector"
+                              class="dropdown-radio"
+                              aria-label="${v.label}"
+                              value="${v.value}"
+                              .checked="${this._theme === v.value}"
+                              @change=${(e) => this._theme = e.target.value} />
+                        `)}
+                        <li class="menu-title">Palette</li>
+                        ${repeat(CardsOfZealView.PROPERTIES_META._palette.values, (v) => v.value, (v) => html`
+                            <input type="radio"
+                              name="palette-selector"
+                              class="dropdown-radio"
+                              aria-label="${v.label}"
+                              value="${v.value}"
+                              .checked="${this._palette === v.value}"
+                              @change=${(e) => this._palette = e.target.value} />
+                        `)}
+                    </ul>
                 </div>
             </div>
         `;
