@@ -55,7 +55,8 @@ swiper-slide {
 }
 
 .slide-content {
-    @apply text-center px-8;
+    @apply text-center p-8;
+    overflow-wrap: anywhere;
 }
 
 swiper-container[effect="cards"] swiper-slide {

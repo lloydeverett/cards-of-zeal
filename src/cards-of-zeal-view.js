@@ -68,7 +68,7 @@ export class CardsOfZealView extends LitElement {
         },
         _soundEnabled: {
             // browsers require page interaction to allow sound playback, so avoid loading "true" from local storage if we're not in an embedded context
-            persist: IS_EMBEDDED, 
+            persist: IS_EMBEDDED,
             values: [
                 { value: true },
                 { value: false }
